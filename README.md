@@ -1,5 +1,9 @@
 Excel-Tutorial-Framework
 ========================
+Created as a project for a class, with the goal of enabling people to easily create their own tutorials in Excel VBA, even if their knowledge of Excel VBA is limited.
+
+Overview
+========================
 
 There are many people that are not familiar with Microsoft Excel and are unaware how much Excel can help them perform their daily tasks.  Just the simple act of opening Excel can scare some away, simply because of the strange interface and multitude of buttons and options that are available to the user.  While some may be able to get past this first shock of information overload, history and experience tells us that many who are intimidated are unable to get past this experience.  
 
