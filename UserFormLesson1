@@ -1,0 +1,117 @@
+Option Explicit
+Dim captions() As String                        'This makes an array of strings (which is called captions). A "string" is a computer word for a sentence -- which can contain numbers, letters, symbols, etc. An array is a way to collect and organize items.  In this case, think of it as a computer's way of putting a bunch of names in a single column in excel: At A1 the name is Bob, A2 the name is Jack, etc. One note, however: Arrays don't start at A1 -- oh no. They start at A0. All arrays start at 0 unless otherwise noted.
+Dim numberOfCaptions As Integer                 'Arrays in VBA (Excel) have to be told how big they are before we can do anything with them.  Change this number every time you add more text to the captions array
+Dim currentCaption As Integer                   'We'll use this variable to let us know where we are in the captions array so that we can go to the next or previous caption every time the "continue" or "back" button is clicked
+Dim actions() As String                         'This array contains the name of the subs that will be run if you want an action to be performed on button click
+Dim validations() As String                     'This array contains the name of the subs that validate that the user performed a certain action before allowing them to move on
+Dim validated As Boolean                        'Used to validate if the user completed the action correctly
+
+
+Sub StartLesson()
+    currentCaption = 0                                      'currentCaption is what we're using to keep track of where we are in the lesson.  Each time the Continue button is clicked, it adds one; if the previous button is clicked, it subtracts one. That way we know where in the array we need to pull the window text from
+    
+    numberOfCaptions = 5                                    'how many total captions there are. be sure to update this every time you add or remove a caption
+    
+    ReDim captions(numberOfCaptions)                        'Telling the array how big to be, as mentioned above in the comments
+    ReDim actions(numberOfCaptions)
+    ReDim validations(numberOfCaptions)
+    
+    'To add a new page in the popup window: add a new line like this: captions(x) = "New message."  Also change the variable 'numberOfCaptions' to the new number x.
+    captions(0) = "Hello!  This little window will contain information and instructions as we go.  Click the buttons below to progress or go back as you wish."
+    captions(1) = "First, an introduction to Excel.  Notice that across the top there are columns labeled A, B, C, etc. We've selected column C as an example."
+    captions(2) = "And also notice that there are rows that are labeled 1, 2, 3, etc. We've selected row 4 as an example."
+    captions(3) = "Now we can refer to a specific location in Excel by first naming the COLUMN, and then the ROW. For example, we have highlighted the cell B5 (notice that it is in column B, and row 5)"
+    captions(4) = "Excel generally has multiple worksheets in which you can work. Notice at the bottom left how it says 'Sheet1', 'Sheet2', and 'Sheet3'.  We switched to 'Sheet2' just barely, please switch back to Sheet1 and then continue!"
+    captions(5) = "Great job! You completed the first lesson!"
+    
+    actions(1) = "selectColumnC"                            'insert the name of the sub here, and it will run whenever the user gets to that point in the display (in this case, caption(2)
+    actions(2) = "selectRow4"
+    actions(3) = "selectB5"
+    actions(4) = "switchSheet2"
+    
+    validations(4) = "verifySheetSwitch"
+    
+    LabelLesson1.Caption = captions(currentCaption)         'sets the window to display the current caption (which in this case will always be 0. but I'm using it here to illistrate a point)
+    
+    ButtonLesson1Previous.Enabled = False                   'disables the previous button
+    ButtonLesson1Next.Enabled = True                        'do this to make sure that if the window comes up after being close that it is enabled.
+    ButtonLesson1Finish.Visible = False                     'do this to hide the finish lesson button until the end.
+    UserFormLesson1.Show                                    'displays the lesson 1 user form.
+    
+End Sub
+
+'This sub runs when the previous button is clicked.  It goes backwards through the caption array and displays what was on the previous page
+Private Sub ButtonLesson1Previous_Click()
+
+    currentCaption = currentCaption - 1
+    ButtonLesson1Next.Enabled = True                        'We enable (which means the user can click on it) it every time just because it could have been disabled by other means.  This is a cheap hack, but it works for the moment.
+    ButtonLesson1Finish.Visible = False                     'Similar to the previous line, this is a cheap hack that just makes sure that the finish button is hidden
+    On Error Resume Next                                    'if the sub doesn't exist, then continue on and don't worry about it!
+    CallByName UserFormLesson1, actions(currentCaption), VbMethod   'this is what calls each sub from the actions array
+    LabelLesson1.Caption = captions(currentCaption)         'Sets the window to display the new caption!
+    
+    If currentCaption = 0 Then
+        ButtonLesson1Previous.Enabled = False               'Disable the previous button when currentCaption reaches 0 so that you can't go into negatives
+    End If
+End Sub
+
+'when the previous button is clicked, this sub is run
+Private Sub ButtonLesson1Next_Click()
+    validated = True                                            'we set validated to true every time just in case there isn't a validation sub for this specific caption.
+    
+    On Error Resume Next
+    CallByName UserFormLesson1, validations(currentCaption), VbMethod   'first we run the validation. if the validation fails, the user remains on the current caption and tries again.
+    
+    If validated Then
+    
+        currentCaption = currentCaption + 1
+        ButtonLesson1Previous.Enabled = True                    'Enables (or allows the user to click) the previous button.  This is a cheap hack.
+        On Error Resume Next                                    'if the function doesn't exist, then don't worry about, just continue on in the program.
+        CallByName UserFormLesson1, actions(currentCaption), VbMethod   'this is what calls each sub from the actions array
+        LabelLesson1.Caption = captions(currentCaption)         'Displays the new caption!
+            
+        If currentCaption = numberOfCaptions Then               'we reached the end of the captions
+            ButtonLesson1Next.Enabled = False                   'disable the continue button so that it can't be clicked again
+            ButtonLesson1Finish.Visible = True                  'show the Finish button to end the lesson
+        End If
+        
+    Else
+        LabelLesson1.Caption = LabelLesson1.Caption & " Please follow the instructions to continue."
+    End If
+
+End Sub
+
+'When the finish button is clicked, this sub is run
+Private Sub ButtonLesson1Finish_Click()
+    UserFormLesson1.Hide
+    UserFormWelcome.Show
+End Sub
+
+'thus ends the subs that compose the framework and need to be copied for each userform that is created.
+'the following subs are specific to this userform, in order to perform specific actions or validations.
+
+'this sub is a verification sub. Each verification sub needs to set the variable "validated" to true if the instructions were followed, or false if the instructions were not followed.
+Sub verifySheetSwitch()
+    If ActiveSheet.Name = "Sheet1" Then
+        validated = True
+    Else
+        validated = False
+    End If
+End Sub
+
+'this is an action sub. Actions are performed for each next/back button click
+Sub switchSheet2()
+    Sheets("Sheet2").Select
+End Sub
+
+Sub selectB5()
+    ActiveSheet.Range("B5").Select
+End Sub
+
+Sub selectColumnC()
+    ActiveSheet.Range("C:C").Select
+End Sub
+
+Sub selectRow4()
+    ActiveSheet.Rows(4).Select
+End Sub
