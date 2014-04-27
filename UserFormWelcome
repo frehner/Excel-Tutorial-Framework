@@ -1,0 +1,8 @@
+Option Explicit
+
+'when the Lesson1 button is clicked, this sub is executed.
+Private Sub ButtonLesson1_Click()
+    UserFormWelcome.Hide                        'hide the welcome userform (popup window)
+    UserFormLesson1.StartLesson                 'UserFormLesson1 is the form for the first lesson. StartLesson is the name of the sub (aka sub procedure).  We're telling Excel to run the code found there.
+End Sub
+
