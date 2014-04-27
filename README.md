@@ -1,6 +1,10 @@
 Excel-Tutorial-Framework
 ========================
-Created as a project for a class, with the goal of enabling people to easily create their own tutorials in Excel VBA, even if their knowledge of Excel VBA is limited.
+Created as a project for a class, with the goal of enabling people to easily create their own tutorials in Excel VBA, even if their knowledge of Excel VBA is limited.  The complete project can be downloaded from 
+
+http://files.gove.net/shares/files/14w/afreh20/LearnExcel.xlsm
+
+which includes a basic tutorial that uses captions, actions, and validations (as described below).
 
 Overview
 ========================
